@@ -1,0 +1,254 @@
+#!/usr/bin/perl
+#
+# Monitor mod_pagespeed statistics
+#
+#
+# Magic markers:
+#%# family=auto
+#%# capabilities=autoconf
+
+use strict;
+use Munin::Plugin;
+
+need_multigraph();
+
+my $ret = undef;
+
+						
+if (! eval "require LWP::UserAgent;")
+{
+        $ret = "LWP::UserAgent not found";		
+}
+
+my $URL = exists $ENV{'url'} ? $ENV{'url'} : "http://127.0.0.1:%d/mod_pagespeed_statistics";
+my @PORTS = exists $ENV{'ports'} ? split(' ', $ENV{'ports'}) : (80);
+
+if ( defined $ARGV[0] and $ARGV[0] eq "autoconf" )
+{
+        if ($ret)
+        {
+                print "no ($ret)\n";
+                exit 1;
+        }
+
+        my $ua = LWP::UserAgent->new(timeout => 30,
+			agent => sprintf("munin/%s (libwww-perl/%s)", $Munin::Common::Defaults::MUNIN_VERSION, $LWP::VERSION));
+
+        my @badports;
+        foreach my $port (@PORTS) {
+                my $url = sprintf $URL, $port;
+                my $response = $ua->request(HTTP::Request->new('GET',$url));
+                push @badports, $port unless $response->is_success and $response->content =~ /^size:/im;
+        }
+        if (@badports) {
+                print "no (mod_pagespeed_statistics)\n";
+                exit 1;
+        } else {
+                print "yes\n";
+                exit 0;
+        }
+}
+
+if ( defined $ARGV[0] and $ARGV[0] eq "config" )
+{
+
+$0 =~ /pagespeed_(.+)*/;
+my $plugin = $1;
+
+
+## mod_pagespeed_statistics cache
+if($plugin eq 'cache') {
+print('multigraph pagespeed_cache
+graph_title Pagespeed Cache hits, misses, inserts, deletes
+graph_args --base 1000
+graph_scale no
+graph_vlabel Number
+graph_category pagespeed
+
+#cache_time_us.label Cache Time US
+#cache_time_us.draw LINE2
+#cache_time_us.min 0
+
+cache_hits.label Cache Hits
+cache_hits.draw LINE2
+cache_hits.min 0
+
+cache_misses.label Cache Misses
+cache_misses.draw LINE2
+cache_misses.min 0
+
+cache_expirations.label Cache Expirations
+cache_expirations.draw LINE2
+cache_expirations.min 0
+
+cache_inserts.label Cache Inserts
+cache_inserts.draw LINE2
+cache_inserts.min 0
+
+cache_deletes.label Cache Deletes
+cache_deletes.draw LINE2
+cache_deletes.min 0
+
+cache_extensions.label Cache Extensions
+cache_extensions.draw LINE2
+cache_extensions.min 0
+');
+}
+
+## mod_pagespeed_statistics css
+elsif($plugin eq 'css') {
+print('multigraph pagespeed_css
+graph_title Pagespeed CSS manipulation
+graph_args --base 1000
+graph_scale no
+graph_vlabel Number or Ko
+graph_category pagespeed
+
+css_file_count_reduction.label CSS file count reduction
+css_file_count_reduction.draw LINE2
+css_file_count_reduction.min 0
+
+css_filter_blocks_rewritten.label CSS filter blocks rewritten
+css_filter_blocks_rewritten.draw LINE2
+css_filter_blocks_rewritten.min 0
+
+css_filter_parse_failures.label CSS filter parse failures
+css_filter_parse_failures.draw LINE2
+css_filter_parse_failures.min 0
+
+css_filter_rewrites_dropped.label CSS filter rewirtes dropped
+css_filter_rewrites_dropped.draw LINE2
+css_filter_rewrites_dropped.min 0
+
+css_filter_total_bytes_saved.label CSS filter total Ko saved
+css_filter_total_bytes_saved.draw LINE2
+css_filter_total_bytes_saved.min 0
+
+css_filter_total_original_bytes.label CSS filter total original Ko saved
+css_filter_total_original_bytes.draw LINE2
+css_filter_total_original_bytes.min 0
+
+css_filter_uses.label CSS filter uses
+css_filter_uses.draw LINE2
+css_filter_uses.min 0
+
+css_imports_to_links.label CSS imports to links
+css_imports_to_links.draw LINE2
+css_imports_to_links.min 0
+
+css_elements_moved.label CSS elements moved
+css_elements_moved.draw LINE2
+css_elements_moved.min 0
+');
+}
+
+exit 0;
+}
+
+foreach my $port (@PORTS)
+{
+    my $ua = LWP::UserAgent->new(timeout => 30);
+    my $url = sprintf $URL, $port;
+    my $response = $ua->request(HTTP::Request->new('GET',$url));
+
+	# CACHE
+    #if ($response->content =~ /cache_time_us:\s+([0-9\.]+)/im) {
+    #        print "cache_time_us.value $1\n";
+    #} else {
+    #        print "cache_time_us.value U\n";
+    #}
+
+    if ($response->content =~ /cache_hits:\s+([0-9\.]+)/im) {
+            print "cache_hits.value $1\n";
+    } else {
+            print "cache_hits.value U\n";
+    }
+
+    if ($response->content =~ /cache_misses:\s+([0-9\.]+)/im) {
+            print "cache_misses.value $1\n";
+    } else {
+            print "cache_misses.value U\n";
+    }
+
+    if ($response->content =~ /cache_expirations:\s+([0-9\.]+)/im) {
+            print "cache_expirations.value $1\n";
+    } else {
+            print "cache_expirations.value U\n";
+    }
+	
+    if ($response->content =~ /cache_inserts:\s+([0-9\.]+)/im) {
+            print "cache_inserts.value $1\n";
+    } else {
+            print "cache_inserts.value U\n";
+    }
+
+    if ($response->content =~ /cache_deletes:\s+([0-9\.]+)/im) {
+            print "cache_deletes.value $1\n";
+    } else {
+            print "cache_deletes.value U\n";
+    }
+
+    if ($response->content =~ /cache_extensions:\s+([0-9\.]+)/im) {
+            print "cache_extensions.value $1\n";
+    } else {
+            print "cache_extensions.value U\n";
+    }	
+	
+	# CSS
+	if ($response->content =~ /css_file_count_reduction:\s+([0-9\.]+)/im) {
+            print "css_file_count_reduction.value $1\n";
+    } else {
+            print "css_file_count_reduction.value U\n";
+    }
+
+    if ($response->content =~ /css_filter_blocks_rewritten:\s+([0-9\.]+)/im) {
+            print "css_filter_blocks_rewritten.value $1\n";
+    } else {
+            print "css_filter_blocks_rewritten.value U\n";
+    }
+
+    if ($response->content =~ /css_filter_parse_failures:\s+([0-9\.]+)/im) {
+            print "css_filter_parse_failures.value $1\n";
+    } else {
+            print "css_filter_parse_failures.value U\n";
+    }
+
+    if ($response->content =~ /css_filter_rewrites_dropped:\s+([0-9\.]+)/im) {
+            print "css_filter_rewrites_dropped.value $1\n";
+    } else {
+            print "css_filter_rewrites_dropped.value U\n";
+    }
+	
+    if ($response->content =~ /css_filter_total_bytes_saved:\s+([0-9\.]+)/im) {
+            print "css_filter_total_bytes_saved.value ".sprintf("%.2f",$1/1024)."\n";
+    } else {
+            print "css_filter_total_bytes_saved.value U\n";
+    }
+
+    if ($response->content =~ /css_filter_total_original_bytes:\s+([0-9\.]+)/im) {
+            print "css_filter_total_original_bytes.value ".sprintf("%.2f",$1/1024)."\n";
+    } else {
+            print "css_filter_total_original_bytes.value U\n";
+    }
+
+    if ($response->content =~ /css_filter_uses:\s+([0-9\.]+)/im) {
+            print "css_filter_uses.value $1\n";
+    } else {
+            print "css_filter_uses.value U\n";
+    }	
+	
+    if ($response->content =~ /css_imports_to_links:\s+([0-9\.]+)/im) {
+            print "css_imports_to_links.value $1\n";
+    } else {
+            print "css_imports_to_links.value U\n";
+    }	
+
+    if ($response->content =~ /css_elements_moved:\s+([0-9\.]+)/im) {
+            print "css_elements_moved.value $1\n";
+    } else {
+            print "css_elements_moved.value U\n";
+    }			
+}
+
+# vim:syntax=perl
+
