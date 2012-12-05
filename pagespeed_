@@ -1,7 +1,15 @@
-#!/usr/bin/perl
+﻿#!/usr/bin/perl
 #
 # Monitor mod_pagespeed statistics
 #
+# pagespeed_cache
+# pagespeed_css
+# pagespeed_js
+# pagespeed_html
+#
+# pagespeed_bw_saved
+# pagespeed_hit_saved
+# explanation : http://stackoverflow.com/questions/9115595/what-do-the-mod-pagespeed-statistics-mean
 #
 # Magic markers:
 #%# family=auto
@@ -64,33 +72,26 @@ graph_args --base 1000
 graph_scale no
 graph_vlabel Number
 graph_category pagespeed
-
 #cache_time_us.label Cache Time US
-#cache_time_us.draw LINE2
+#cache_time_us.draw LINE1
 #cache_time_us.min 0
-
 cache_hits.label Cache Hits
-cache_hits.draw LINE2
+cache_hits.draw LINE1
 cache_hits.min 0
-
 cache_misses.label Cache Misses
-cache_misses.draw LINE2
+cache_misses.draw LINE1
 cache_misses.min 0
-
 cache_expirations.label Cache Expirations
-cache_expirations.draw LINE2
+cache_expirations.draw LINE1
 cache_expirations.min 0
-
 cache_inserts.label Cache Inserts
-cache_inserts.draw LINE2
+cache_inserts.draw LINE1
 cache_inserts.min 0
-
 cache_deletes.label Cache Deletes
-cache_deletes.draw LINE2
+cache_deletes.draw LINE1
 cache_deletes.min 0
-
 cache_extensions.label Cache Extensions
-cache_extensions.draw LINE2
+cache_extensions.draw LINE1
 cache_extensions.min 0
 ');
 }
@@ -98,50 +99,161 @@ cache_extensions.min 0
 ## mod_pagespeed_statistics css
 elsif($plugin eq 'css') {
 print('multigraph pagespeed_css
-graph_title Pagespeed CSS manipulation
+graph_title Pagespeed CSS Optimization
 graph_args --base 1000
 graph_scale no
 graph_vlabel Number or Ko
 graph_category pagespeed
-
 css_file_count_reduction.label CSS file count reduction
-css_file_count_reduction.draw LINE2
+css_file_count_reduction.draw LINE1
 css_file_count_reduction.min 0
-
 css_filter_blocks_rewritten.label CSS filter blocks rewritten
-css_filter_blocks_rewritten.draw LINE2
+css_filter_blocks_rewritten.draw LINE1
 css_filter_blocks_rewritten.min 0
-
 css_filter_parse_failures.label CSS filter parse failures
-css_filter_parse_failures.draw LINE2
+css_filter_parse_failures.draw LINE1
 css_filter_parse_failures.min 0
-
 css_filter_rewrites_dropped.label CSS filter rewirtes dropped
-css_filter_rewrites_dropped.draw LINE2
+css_filter_rewrites_dropped.draw LINE1
 css_filter_rewrites_dropped.min 0
-
 css_filter_total_bytes_saved.label CSS filter total Ko saved
-css_filter_total_bytes_saved.draw LINE2
+css_filter_total_bytes_saved.draw LINE1
 css_filter_total_bytes_saved.min 0
-
-css_filter_total_original_bytes.label CSS filter total original Ko saved
-css_filter_total_original_bytes.draw LINE2
+css_filter_total_original_bytes.label CSS filter total original Ko
+css_filter_total_original_bytes.draw LINE1
 css_filter_total_original_bytes.min 0
-
 css_filter_uses.label CSS filter uses
-css_filter_uses.draw LINE2
+css_filter_uses.draw LINE1
 css_filter_uses.min 0
-
 css_imports_to_links.label CSS imports to links
-css_imports_to_links.draw LINE2
+css_imports_to_links.draw LINE1
 css_imports_to_links.min 0
-
 css_elements_moved.label CSS elements moved
-css_elements_moved.draw LINE2
+css_elements_moved.draw LINE1
 css_elements_moved.min 0
 ');
 }
 
+## mod_pagespeed_statistics javascript
+elsif($plugin eq 'js') {
+print('multigraph pagespeed_js
+graph_title Pagespeed Javascript Optimization
+graph_args --base 1000
+graph_scale no
+graph_vlabel Number or Ko
+graph_category pagespeed
+javascript_blocks_minified.label Javascript blocks minified
+javascript_blocks_minified.draw LINE1
+javascript_blocks_minified.min 0
+javascript_minification_failures.label Javascript minification failures
+javascript_minification_failures.draw LINE1
+javascript_minification_failures.min 0
+javascript_total_bytes_saved.label Javascript total Ko saved
+javascript_total_bytes_saved.draw LINE1
+javascript_total_bytes_saved.min 0
+javascript_total_original_bytes.label Javascript total original Ko
+javascript_total_original_bytes.draw LINE1
+javascript_total_original_bytes.min 0
+javascript_minify_uses.label Javascript minify uses
+javascript_minify_uses.draw LINE1
+javascript_minify_uses.min 0
+js_file_count_reduction.label Javascript file count reduction
+js_file_count_reduction.draw LINE1
+js_file_count_reduction.min 0
+');
+}
+
+## mod_pagespeed_statistics html
+elsif($plugin eq 'html') {
+print('multigraph pagespeed_html
+graph_title Pagespeed HTML Optimization
+graph_args --base 1000
+graph_scale no
+graph_vlabel Number or Ko
+graph_category pagespeed
+url_trims.label url trims
+url_trims.draw LINE1
+url_trims.min 0
+url_trim_saved_bytes.label url trim saved Ko
+url_trim_saved_bytes.draw LINE1
+url_trim_saved_bytes.min 0
+resource_url_domain_rejections.label resource url domain rejections
+resource_url_domain_rejections.draw LINE1
+resource_url_domain_rejections.min 0
+rewrite_cached_output_missed_deadline.label Rewrite cached output missed deadline
+rewrite_cached_output_missed_deadline.draw LINE1
+rewrite_cached_output_missed_deadline.min 0
+rewrite_cached_output_hits.label Rewrite cached output hits
+rewrite_cached_output_hits.draw LINE1
+rewrite_cached_output_hits.min 0
+rewrite_cached_output_misses.label Rewrite cached output misses
+rewrite_cached_output_misses.draw LINE1
+rewrite_cached_output_misses.min 0
+resource_fetches_cached.label Resource fetches cached
+resource_fetches_cached.draw LINE1
+resource_fetches_cached.min 0
+resource_fetch_construct_successes.label Resource fetch construct successes
+resource_fetch_construct_successes.draw LINE1
+resource_fetch_construct_successes.min 0
+resource_fetch_construct_failures.label Resource fetch construct failures
+resource_fetch_construct_failures.draw LINE1
+resource_fetch_construct_failures.min 0
+num_flushes.label Rewrite Number of flushes
+num_flushes.draw LINE1
+num_flushes.min 0
+num_rewrites_executed.label Number of rewrites executed
+num_rewrites_executed.draw LINE1
+num_rewrites_executed.min 0
+num_rewrites_dropped.label Number of rewrites dropped
+num_rewrites_dropped.draw LINE1
+num_rewrites_dropped.min 0
+serf_fetch_request_count.label serf_fetch_request_count
+serf_fetch_request_count.draw LINE1
+serf_fetch_request_count.min 0
+serf_fetch_bytes_count.label serf_fetch_bytes_count
+serf_fetch_bytes_count.draw LINE1
+serf_fetch_bytes_count.min 0
+serf_fetch_time_duration_ms.label serf_fetch_time_duration_ms (en sec)
+serf_fetch_time_duration_ms.draw LINE1
+serf_fetch_time_duration_ms.min 0
+');
+}
+
+## mod_pagespeed_statistics bandwidth saved
+elsif($plugin eq 'bw_saved') {
+print('multigraph pagespeed_bw_saved
+graph_title Pagespeed Bytes saved
+graph_args --base 1024
+graph_scale no
+graph_vlabel bytes
+graph_category pagespeed
+
+css_filter_total_original_bytes2.label CSS filter total original bytes
+css_filter_total_original_bytes2.draw LINE2
+css_filter_total_original_bytes2.min 0
+css_filter_total_original_bytes2.type COUNTER
+
+javascript_total_original_bytes2.label Javascript total original bytes
+javascript_total_original_bytes2.draw LINE2
+javascript_total_original_bytes2.min 0
+javascript_total_original_bytes2.type COUNTER
+
+css_filter_total_bytes_saved2.label CSS filter total bytes saved
+css_filter_total_bytes_saved2.draw AREA
+css_filter_total_bytes_saved2.min 0
+css_filter_total_bytes_saved2.type COUNTER
+
+javascript_total_bytes_saved2.label Javascript total bytes saved
+javascript_total_bytes_saved2.draw STACK
+javascript_total_bytes_saved2.min 0
+javascript_total_bytes_saved2.type COUNTER
+
+url_trim_saved_bytes2.label url trim saved bytes
+url_trim_saved_bytes2.draw STACK
+url_trim_saved_bytes2.min 0
+url_trim_saved_bytes2.type COUNTER
+');
+}
 exit 0;
 }
 
@@ -247,8 +359,167 @@ foreach my $port (@PORTS)
             print "css_elements_moved.value $1\n";
     } else {
             print "css_elements_moved.value U\n";
-    }			
+    }	
+
+	# JAVASCRIPT
+	if ($response->content =~ /javascript_blocks_minified:\s+([0-9\.]+)/im) {
+            print "javascript_blocks_minified.value $1\n";
+    } else {
+            print "javascript_blocks_minified.value U\n";
+    }
+
+    if ($response->content =~ /javascript_minification_failures:\s+([0-9\.]+)/im) {
+            print "javascript_minification_failures.value $1\n";
+    } else {
+            print "javascript_minification_failures.value U\n";
+    }
+
+    if ($response->content =~ /javascript_total_bytes_saved:\s+([0-9\.]+)/im) {
+            print "javascript_total_bytes_saved.value ".sprintf("%.2f",$1/1024)."\n";
+    } else {
+            print "javascript_total_bytes_saved.value U\n";
+    }
+
+    if ($response->content =~ /javascript_total_original_bytes:\s+([0-9\.]+)/im) {
+            print "javascript_total_original_bytes.value ".sprintf("%.2f",$1/1024)."\n";
+    } else {
+            print "javascript_total_original_bytes.value U\n";
+    }
+
+    if ($response->content =~ /javascript_minify_uses:\s+([0-9\.]+)/im) {
+            print "javascript_minify_uses.value $1\n";
+    } else {
+            print "javascript_minify_uses.value U\n";
+    }	
+	
+    if ($response->content =~ /js_file_count_reduction:\s+([0-9\.]+)/im) {
+            print "js_file_count_reduction.value $1\n";
+    } else {
+            print "js_file_count_reduction.value U\n";
+    }	
+
+	# HTML
+	if ($response->content =~ /url_trims:\s+([0-9\.]+)/im) {
+            print "url_trims.value $1\n";
+    } else {
+            print "url_trims.value U\n";
+    }
+
+    if ($response->content =~ /url_trim_saved_bytes:\s+([0-9\.]+)/im) {
+            print "url_trim_saved_bytes.value ".sprintf("%.2f",$1/1024)."\n";
+    } else {
+            print "url_trim_saved_bytes.value U\n";
+    }
+
+    if ($response->content =~ /resource_url_domain_rejections:\s+([0-9\.]+)/im) {
+            print "resource_url_domain_rejections.value $1\n";
+    } else {
+            print "resource_url_domain_rejections.value U\n";
+    }
+
+    if ($response->content =~ /rewrite_cached_output_missed_deadline:\s+([0-9\.]+)/im) {
+            print "rewrite_cached_output_missed_deadline.value $1\n";
+    } else {
+            print "rewrite_cached_output_missed_deadline.value U\n";
+    }
+	
+    if ($response->content =~ /rewrite_cached_output_hits:\s+([0-9\.]+)/im) {
+            print "rewrite_cached_output_hits.value $1\n";
+    } else {
+            print "rewrite_cached_output_hits.value U\n";
+    }
+
+    if ($response->content =~ /rewrite_cached_output_misses:\s+([0-9\.]+)/im) {
+            print "rewrite_cached_output_misses.value $1\n";
+    } else {
+            print "rewrite_cached_output_misses.value U\n";
+    }
+
+    if ($response->content =~ /resource_fetches_cached:\s+([0-9\.]+)/im) {
+            print "resource_fetches_cached.value $1\n";
+    } else {
+            print "resource_fetches_cached.value U\n";
+    }	
+	
+    if ($response->content =~ /resource_fetch_construct_successes:\s+([0-9\.]+)/im) {
+            print "resource_fetch_construct_successes.value $1\n";
+    } else {
+            print "resource_fetch_construct_successes.value U\n";
+    }	
+
+    if ($response->content =~ /resource_fetch_construct_failures:\s+([0-9\.]+)/im) {
+            print "resource_fetch_construct_failures.value $1\n";
+    } else {
+            print "resource_fetch_construct_failures.value U\n";
+    }	
+
+    if ($response->content =~ /num_flushes:\s+([0-9\.]+)/im) {
+            print "num_flushes.value $1\n";
+    } else {
+            print "num_flushes.value U\n";
+    }	
+
+    if ($response->content =~ /num_rewrites_executed:\s+([0-9\.]+)/im) {
+            print "num_rewrites_executed.value $1\n";
+    } else {
+            print "num_rewrites_executed.value U\n";
+    }	
+
+    if ($response->content =~ /num_rewrites_dropped:\s+([0-9\.]+)/im) {
+            print "num_rewrites_dropped.value $1\n";
+    } else {
+            print "num_rewrites_dropped.value U\n";
+    }	
+
+    if ($response->content =~ /serf_fetch_request_count:\s+([0-9\.]+)/im) {
+            print "serf_fetch_request_count.value $1\n";
+    } else {
+            print "serf_fetch_request_count.value U\n";
+    }
+
+    if ($response->content =~ /serf_fetch_bytes_count:\s+([0-9\.]+)/im) {
+            print "serf_fetch_bytes_count.value ".sprintf("%.2f",$1/1024)."\n";
+    } else {
+            print "serf_fetch_bytes_count.value U\n";
+    }
+
+    if ($response->content =~ /serf_fetch_time_duration_ms:\s+([0-9\.]+)/im) {
+            print "serf_fetch_time_duration_ms.value ".sprintf("%.2f",$1/1000)."\n";
+    } else {
+            print "serf_fetch_time_duration_ms.value U\n";
+    }	
+	
+	# bandwitdh saved
+    if ($response->content =~ /css_filter_total_original_bytes:\s+([0-9\.]+)/im) {
+            print "css_filter_total_original_bytes2.value $1\n";
+    } else {
+            print "css_filter_total_original_bytes2.value U\n";
+    }
+
+    if ($response->content =~ /javascript_total_original_bytes:\s+([0-9\.]+)/im) {
+            print "javascript_total_original_bytes2.value $1\n";
+    } else {
+            print "javascript_total_original_bytes2.value U\n";
+    }
+	
+    if ($response->content =~ /css_filter_total_bytes_saved:\s+([0-9\.]+)/im) {
+            print "css_filter_total_bytes_saved2.value $1\n";
+    } else {
+            print "css_filter_total_bytes_saved2.value U\n";
+    }
+
+    if ($response->content =~ /javascript_total_bytes_saved:\s+([0-9\.]+)/im) {
+            print "javascript_total_bytes_saved2.value $1\n";
+    } else {
+            print "javascript_total_bytes_saved2.value U\n";
+    }
+	
+    if ($response->content =~ /url_trim_saved_bytes:\s+([0-9\.]+)/im) {
+            print "url_trim_saved_bytes2.value $1\n";
+    } else {
+            print "url_trim_saved_bytes2.value U\n";
+    }
+
 }
 
 # vim:syntax=perl
-
